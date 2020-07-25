@@ -194,134 +194,135 @@ def re_draw_menu_window():
     pygame.display.update()
 
 
-Falcon = Ship(320, 700, 70, 70, 1)
-# Armada = Ship(320, 700, 70, 70, 2)
-Thanos = Enemy(0, 5, root_width + 10)
+if __name__ == "__main__":
+    Falcon = Ship(320, 700, 70, 70, 1)
+    # Armada = Ship(320, 700, 70, 70, 2)
+    Thanos = Enemy(0, 5, root_width + 10)
 
 
-missiles = []
-e_missiles = []
-e_missilesR = []
+    missiles = []
+    e_missiles = []
+    e_missilesR = []
 
-score = 0
-font = pygame.font.SysFont('ink free', 50)
-font1 = pygame.font.SysFont('ink free', 30, True)
-shootDelay = 0
-e_missile_delay = 0
-e_missile_delayR = 0
+    score = 0
+    font = pygame.font.SysFont('ink free', 50)
+    font1 = pygame.font.SysFont('ink free', 30, True)
+    shootDelay = 0
+    e_missile_delay = 0
+    e_missile_delayR = 0
 
-run = True
-runMain = False
+    run = True
+    runMain = False
 
-while run:
-    clock.tick(35)
+    while run:
+        clock.tick(35)
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_s]:
+            runMain = True
+        if keys[pygame.K_q]:
             run = False
+        if keys[pygame.K_m]:
+            runMain = False
+            reset_values()
 
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_s]:
-        runMain = True
-    if keys[pygame.K_q]:
-        run = False
-    if keys[pygame.K_m]:
-        runMain = False
-        reset_values()
+        if runMain:
+            # FALCON MISSILE DEPLOY
 
-    if runMain:
-        # FALCON MISSILE DEPLOY
+            if shootDelay > 0:
+                shootDelay += 1
+            if shootDelay > 10:
+                shootDelay = 0
 
-        if shootDelay > 0:
-            shootDelay += 1
-        if shootDelay > 10:
-            shootDelay = 0
+            for missile in missiles:
+                if missile.y > Thanos.hitBox[1] and missile.y < Thanos.hitBox[1] + Thanos.hitBox[3]:
+                    if missile.x + 10 > Thanos.hitBox[0] and missile.x < Thanos.hitBox[0] + Thanos.hitBox[2]:
+                        missiles.pop(missiles.index(missile))
+                        score += 10
+                        Thanos.hit()
 
-        for missile in missiles:
-            if missile.y > Thanos.hitBox[1] and missile.y < Thanos.hitBox[1] + Thanos.hitBox[3]:
-                if missile.x + 10 > Thanos.hitBox[0] and missile.x < Thanos.hitBox[0] + Thanos.hitBox[2]:
+            for missile in missiles:
+                if missile.y > 0:
+                    missile.y -= missile.vel
+                else:
                     missiles.pop(missiles.index(missile))
-                    score += 10
-                    Thanos.hit()
 
-        for missile in missiles:
-            if missile.y > 0:
-                missile.y -= missile.vel
-            else:
-                missiles.pop(missiles.index(missile))
+            # ENEMY MISSILE DEPLOY
 
-        # ENEMY MISSILE DEPLOY
+            if e_missile_delay > 0:
+                e_missile_delay += 1
+            if e_missile_delay > 20:
+                e_missile_delay = 0
 
-        if e_missile_delay > 0:
-            e_missile_delay += 1
-        if e_missile_delay > 20:
-            e_missile_delay = 0
+            if Thanos.visible:
+                if Falcon.visible:
+                    if e_missile_delay == 0:
+                        e_missiles.append(EWeapon(round(Thanos.x + 45), round(Thanos.y + 300//2), 10, 50))
+                        e_missile_delay = 1
 
-        if Thanos.visible:
-            if Falcon.visible:
-                if e_missile_delay == 0:
-                    e_missiles.append(EWeapon(round(Thanos.x + 45), round(Thanos.y + 300//2), 10, 50))
-                    e_missile_delay = 1
-
-        for e_missile in e_missiles:
-            if e_missile.y < root_height:
-                e_missile.y += e_missile.vel
-            else:
-                e_missiles.pop(e_missiles.index(e_missile))
-
-        for e_missile in e_missiles:
-            if e_missile.y < Falcon.hitBox[1] + Falcon.hitBox[3] and e_missile.y + e_missile.height > Falcon.hitBox[1]:
-                if e_missile.x + e_missile.width > Falcon.hitBox[0] and e_missile.x < Falcon.hitBox[0] + Falcon.hitBox[2]:
+            for e_missile in e_missiles:
+                if e_missile.y < root_height:
+                    e_missile.y += e_missile.vel
+                else:
                     e_missiles.pop(e_missiles.index(e_missile))
-                    score -= 10
-                    Falcon.hit()
 
-        if e_missile_delayR > 0:
-            e_missile_delayR += 1
-        if e_missile_delayR > 15:
-            e_missile_delayR = 0
+            for e_missile in e_missiles:
+                if e_missile.y < Falcon.hitBox[1] + Falcon.hitBox[3] and e_missile.y + e_missile.height > Falcon.hitBox[1]:
+                    if e_missile.x + e_missile.width > Falcon.hitBox[0] and e_missile.x < Falcon.hitBox[0] + Falcon.hitBox[2]:
+                        e_missiles.pop(e_missiles.index(e_missile))
+                        score -= 10
+                        Falcon.hit()
 
-        if Thanos.visible:
-            if Falcon.visible:
-                if e_missile_delayR == 0:
-                    e_missilesR.append(EWeapon(round(Thanos.x + 245), round(Thanos.y + 300 // 2), 10, 50))
-                    e_missile_delayR = 1
+            if e_missile_delayR > 0:
+                e_missile_delayR += 1
+            if e_missile_delayR > 15:
+                e_missile_delayR = 0
 
-        for e_missile in e_missilesR:
-            if e_missile.y < root_height:
-                e_missile.y += e_missile.vel
-            else:
-                e_missilesR.pop(e_missilesR.index(e_missile))
+            if Thanos.visible:
+                if Falcon.visible:
+                    if e_missile_delayR == 0:
+                        e_missilesR.append(EWeapon(round(Thanos.x + 245), round(Thanos.y + 300 // 2), 10, 50))
+                        e_missile_delayR = 1
 
-        for e_missile in e_missilesR:
-            if e_missile.y < Falcon.hitBox[1] + Falcon.hitBox[3] and e_missile.y + e_missile.height > Falcon.hitBox[1]:
-                if e_missile.x + e_missile.width > Falcon.hitBox[0] and e_missile.x < Falcon.hitBox[0] + Falcon.hitBox[2]:
+            for e_missile in e_missilesR:
+                if e_missile.y < root_height:
+                    e_missile.y += e_missile.vel
+                else:
                     e_missilesR.pop(e_missilesR.index(e_missile))
-                    score -= 10
-                    Falcon.hit()
 
-        # KEY IN USE
+            for e_missile in e_missilesR:
+                if e_missile.y < Falcon.hitBox[1] + Falcon.hitBox[3] and e_missile.y + e_missile.height > Falcon.hitBox[1]:
+                    if e_missile.x + e_missile.width > Falcon.hitBox[0] and e_missile.x < Falcon.hitBox[0] + Falcon.hitBox[2]:
+                        e_missilesR.pop(e_missilesR.index(e_missile))
+                        score -= 10
+                        Falcon.hit()
 
-        if not Falcon.visible:
-            if keys[pygame.K_c]:
-                Falcon.visible = True
-                reset_values()
+            # KEY IN USE
 
-        if Thanos.visible:
-            if Falcon.visible:
-                if keys[pygame.K_SPACE] and shootDelay == 0:
-                    shipFire.play()
-                    if len(missiles) < 10:
-                        missiles.append(Weapon(round(Falcon.x - 5 + Falcon.width/2), Falcon.y))
-                    shootDelay = 1
-                if keys[pygame.K_RIGHT] and Falcon.x < root_width - Falcon.width:
-                    Falcon.x += Falcon.vel
-                if keys[pygame.K_LEFT] and Falcon.x > 0:
-                    Falcon.x -= Falcon.vel
+            if not Falcon.visible:
+                if keys[pygame.K_c]:
+                    Falcon.visible = True
+                    reset_values()
 
-        # DRAW FUNCTION
-        re_draw_everything()
-    else:
+            if Thanos.visible:
+                if Falcon.visible:
+                    if keys[pygame.K_SPACE] and shootDelay == 0:
+                        shipFire.play()
+                        if len(missiles) < 10:
+                            missiles.append(Weapon(round(Falcon.x - 5 + Falcon.width/2), Falcon.y))
+                        shootDelay = 1
+                    if keys[pygame.K_RIGHT] and Falcon.x < root_width - Falcon.width:
+                        Falcon.x += Falcon.vel
+                    if keys[pygame.K_LEFT] and Falcon.x > 0:
+                        Falcon.x -= Falcon.vel
 
-        re_draw_menu_window()
-pygame.quit()
+            # DRAW FUNCTION
+            re_draw_everything()
+        else:
+
+            re_draw_menu_window()
+    pygame.quit()
